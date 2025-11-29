@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nilamel Election Voters List</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>Nilamel Election Voters List</h1>
+        <p>Voter Management System</p>
+      </div>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalVoters">0</span>
+            <span class="stat-label">Total Voters</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon male">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="7" r="4"></circle>
+              <path d="M5.5 21v-2a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="maleVoters">0</span>
+            <span class="stat-label">Male Voters</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon female">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="7" r="4"></circle>
+              <path d="M5.5 21v-2a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="femaleVoters">0</span>
+            <span class="stat-label">Female Voters</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon wards">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalWards">0</span>
+            <span class="stat-label">Wards</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search by name, voter ID, house name...">
+        </div>
+        <div class="filters">
+          <select id="wardFilter">
+            <option value="">All Wards</option>
+          </select>
+          <select id="boothFilter">
+            <option value="">All Booths</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Voter
+        </button>
+      </div>
+
+      <!-- Voters Table -->
+      <div class="table-container">
+        <table class="voters-table">
+          <thead>
+            <tr>
+              <th>Sl.No</th>
+              <th>Voter ID</th>
+              <th>Name</th>
+              <th>Guardian</th>
+              <th>House</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Ward</th>
+              <th>Booth</th>
+              <th>Mobile</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="votersTableBody">
+            <!-- Populated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <button class="btn btn-secondary" id="prevBtn" onclick="changePage(-1)">Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button class="btn btn-secondary" id="nextBtn" onclick="changePage(1)">Next</button>
+      </div>
+    </main>
+
+    <!-- Add/Edit Voter Modal -->
+    <div class="modal" id="voterModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add New Voter</h2>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="voterForm" onsubmit="saveVoter(event)">
+          <input type="hidden" id="voterId">
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="sl_no">Sl. No</label>
+              <input type="number" id="sl_no" name="sl_no">
+            </div>
+            <div class="form-group">
+              <label for="voter_id">Voter ID *</label>
+              <input type="text" id="voter_id" name="voter_id" required>
+            </div>
+            <div class="form-group">
+              <label for="name">Name (English) *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="name_malayalam">Name (Malayalam)</label>
+              <input type="text" id="name_malayalam" name="name_malayalam">
+            </div>
+            <div class="form-group">
+              <label for="guardian_name">Guardian Name</label>
+              <input type="text" id="guardian_name" name="guardian_name">
+            </div>
+            <div class="form-group">
+              <label for="guardian_name_malayalam">Guardian Name (Malayalam)</label>
+              <input type="text" id="guardian_name_malayalam" name="guardian_name_malayalam">
+            </div>
+            <div class="form-group">
+              <label for="relationship">Relationship</label>
+              <select id="relationship" name="relationship">
+                <option value="">Select</option>
+                <option value="Father">Father</option>
+                <option value="Mother">Mother</option>
+                <option value="Husband">Husband</option>
+                <option value="Wife">Wife</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="house_name">House Name</label>
+              <input type="text" id="house_name" name="house_name">
+            </div>
+            <div class="form-group">
+              <label for="house_name_malayalam">House Name (Malayalam)</label>
+              <input type="text" id="house_name_malayalam" name="house_name_malayalam">
+            </div>
+            <div class="form-group">
+              <label for="house_number">House Number</label>
+              <input type="text" id="house_number" name="house_number">
+            </div>
+            <div class="form-group">
+              <label for="age">Age</label>
+              <input type="number" id="age" name="age" min="18" max="150">
+            </div>
+            <div class="form-group">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="ward_no">Ward No</label>
+              <input type="number" id="ward_no" name="ward_no">
+            </div>
+            <div class="form-group">
+              <label for="booth_no">Booth No</label>
+              <input type="number" id="booth_no" name="booth_no">
+            </div>
+            <div class="form-group">
+              <label for="booth_name">Booth Name</label>
+              <input type="text" id="booth_name" name="booth_name">
+            </div>
+            <div class="form-group">
+              <label for="polling_station">Polling Station</label>
+              <input type="text" id="polling_station" name="polling_station">
+            </div>
+            <div class="form-group">
+              <label for="epic_no">EPIC No</label>
+              <input type="text" id="epic_no" name="epic_no">
+            </div>
+            <div class="form-group">
+              <label for="mobile">Mobile</label>
+              <input type="tel" id="mobile" name="mobile">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group full-width">
+              <label for="remarks">Remarks</label>
+              <textarea id="remarks" name="remarks" rows="2"></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Voter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Voter Modal -->
+    <div class="modal" id="viewModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Voter Details</h2>
+          <button class="close-btn" onclick="closeViewModal()">&times;</button>
+        </div>
+        <div class="voter-details" id="voterDetails">
+          <!-- Populated by JavaScript -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeViewModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
