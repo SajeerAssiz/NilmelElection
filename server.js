@@ -16,7 +16,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Get all voters with pagination and search
 app.get('/api/voters', (req, res) => {
   try {
-    const { page = 1, limit = 50, search = '', ward = '', booth = '' } = req.query;
+    const {
+      page = 1,
+      limit = 50,
+      search = '',
+      ward = '',
+      booth = '',
+      gender = '',
+      minAge = '',
+      maxAge = '',
+      houseNumber = ''
+    } = req.query;
     const offset = (page - 1) * limit;
 
     let query = 'SELECT * FROM voters WHERE is_active = 1';
@@ -24,10 +34,10 @@ app.get('/api/voters', (req, res) => {
     const params = [];
 
     if (search) {
-      query += ' AND (name LIKE ? OR voter_id LIKE ? OR house_name LIKE ? OR mobile LIKE ?)';
-      countQuery += ' AND (name LIKE ? OR voter_id LIKE ? OR house_name LIKE ? OR mobile LIKE ?)';
+      query += ' AND (name LIKE ? OR voter_id LIKE ? OR house_name LIKE ? OR guardian_name LIKE ? OR epic_no LIKE ? OR house_number LIKE ?)';
+      countQuery += ' AND (name LIKE ? OR voter_id LIKE ? OR house_name LIKE ? OR guardian_name LIKE ? OR epic_no LIKE ? OR house_number LIKE ?)';
       const searchParam = `%${search}%`;
-      params.push(searchParam, searchParam, searchParam, searchParam);
+      params.push(searchParam, searchParam, searchParam, searchParam, searchParam, searchParam);
     }
 
     if (ward) {
@@ -40,6 +50,30 @@ app.get('/api/voters', (req, res) => {
       query += ' AND booth_no = ?';
       countQuery += ' AND booth_no = ?';
       params.push(booth);
+    }
+
+    if (gender) {
+      query += ' AND gender = ?';
+      countQuery += ' AND gender = ?';
+      params.push(gender);
+    }
+
+    if (minAge) {
+      query += ' AND age >= ?';
+      countQuery += ' AND age >= ?';
+      params.push(parseInt(minAge));
+    }
+
+    if (maxAge) {
+      query += ' AND age <= ?';
+      countQuery += ' AND age <= ?';
+      params.push(parseInt(maxAge));
+    }
+
+    if (houseNumber) {
+      query += ' AND house_number LIKE ?';
+      countQuery += ' AND house_number LIKE ?';
+      params.push(`%${houseNumber}%`);
     }
 
     query += ' ORDER BY sl_no ASC, id ASC LIMIT ? OFFSET ?';
@@ -56,6 +90,79 @@ app.get('/api/voters', (req, res) => {
         total,
         totalPages: Math.ceil(total / limit)
       }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Advanced search endpoint
+app.get('/api/voters/search/advanced', (req, res) => {
+  try {
+    const {
+      name = '',
+      guardian = '',
+      houseName = '',
+      houseNumber = '',
+      epicNo = '',
+      gender = '',
+      minAge = '',
+      maxAge = '',
+      limit = 100
+    } = req.query;
+
+    let query = 'SELECT * FROM voters WHERE is_active = 1';
+    const params = [];
+
+    if (name) {
+      query += ' AND name LIKE ?';
+      params.push(`%${name}%`);
+    }
+
+    if (guardian) {
+      query += ' AND guardian_name LIKE ?';
+      params.push(`%${guardian}%`);
+    }
+
+    if (houseName) {
+      query += ' AND house_name LIKE ?';
+      params.push(`%${houseName}%`);
+    }
+
+    if (houseNumber) {
+      query += ' AND house_number LIKE ?';
+      params.push(`%${houseNumber}%`);
+    }
+
+    if (epicNo) {
+      query += ' AND (epic_no LIKE ? OR voter_id LIKE ?)';
+      params.push(`%${epicNo}%`, `%${epicNo}%`);
+    }
+
+    if (gender) {
+      query += ' AND gender = ?';
+      params.push(gender);
+    }
+
+    if (minAge) {
+      query += ' AND age >= ?';
+      params.push(parseInt(minAge));
+    }
+
+    if (maxAge) {
+      query += ' AND age <= ?';
+      params.push(parseInt(maxAge));
+    }
+
+    query += ` ORDER BY sl_no ASC LIMIT ?`;
+    params.push(parseInt(limit));
+
+    const voters = db.prepare(query).all(...params);
+
+    res.json({
+      success: true,
+      data: voters,
+      count: voters.length
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

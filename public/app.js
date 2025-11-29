@@ -5,6 +5,7 @@ const API_URL = '/api';
 let currentPage = 1;
 let totalPages = 1;
 let searchTimeout = null;
+let isAdvancedSearch = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       currentPage = 1;
+      isAdvancedSearch = false;
       loadVoters();
     }, 300);
   });
@@ -25,12 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Filter change handlers
   document.getElementById('wardFilter').addEventListener('change', () => {
     currentPage = 1;
+    isAdvancedSearch = false;
     loadVoters();
     loadBooths();
   });
 
   document.getElementById('boothFilter').addEventListener('change', () => {
     currentPage = 1;
+    isAdvancedSearch = false;
+    loadVoters();
+  });
+
+  document.getElementById('genderFilter').addEventListener('change', () => {
+    currentPage = 1;
+    isAdvancedSearch = false;
     loadVoters();
   });
 });
@@ -61,13 +71,15 @@ async function loadVoters() {
     const search = document.getElementById('searchInput').value;
     const ward = document.getElementById('wardFilter').value;
     const booth = document.getElementById('boothFilter').value;
+    const gender = document.getElementById('genderFilter').value;
 
     const params = new URLSearchParams({
       page: currentPage,
       limit: 50,
       search,
       ward,
-      booth
+      booth,
+      gender
     });
 
     const response = await fetch(`${API_URL}/voters?${params}`);
@@ -435,4 +447,80 @@ async function deleteVoter(id) {
     console.error('Error deleting voter:', error);
     alert('Error deleting voter');
   }
+}
+
+// ============ ADVANCED SEARCH ============
+
+// Toggle Advanced Search Panel
+function toggleAdvancedSearch() {
+  const panel = document.getElementById('advancedSearch');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+// Apply Advanced Search
+async function applyAdvancedSearch() {
+  const tableBody = document.getElementById('votersTableBody');
+  tableBody.innerHTML = '<tr><td colspan="11" class="loading">Searching...</td></tr>';
+
+  const params = new URLSearchParams();
+
+  const name = document.getElementById('advName').value;
+  const guardian = document.getElementById('advGuardian').value;
+  const houseName = document.getElementById('advHouseName').value;
+  const houseNumber = document.getElementById('advHouseNumber').value;
+  const epicNo = document.getElementById('advEpicNo').value;
+  const gender = document.getElementById('advGender').value;
+  const minAge = document.getElementById('advMinAge').value;
+  const maxAge = document.getElementById('advMaxAge').value;
+
+  if (name) params.append('name', name);
+  if (guardian) params.append('guardian', guardian);
+  if (houseName) params.append('houseName', houseName);
+  if (houseNumber) params.append('houseNumber', houseNumber);
+  if (epicNo) params.append('epicNo', epicNo);
+  if (gender) params.append('gender', gender);
+  if (minAge) params.append('minAge', minAge);
+  if (maxAge) params.append('maxAge', maxAge);
+
+  try {
+    const response = await fetch(`${API_URL}/voters/search/advanced?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      isAdvancedSearch = true;
+      renderVoters(result.data);
+      document.getElementById('pageInfo').textContent = `Found ${result.count} voters`;
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+    }
+  } catch (error) {
+    console.error('Error in advanced search:', error);
+    tableBody.innerHTML = '<tr><td colspan="11" class="empty-state">Search error</td></tr>';
+  }
+}
+
+// Clear Advanced Search
+function clearAdvancedSearch() {
+  document.getElementById('advName').value = '';
+  document.getElementById('advGuardian').value = '';
+  document.getElementById('advHouseName').value = '';
+  document.getElementById('advHouseNumber').value = '';
+  document.getElementById('advEpicNo').value = '';
+  document.getElementById('advGender').value = '';
+  document.getElementById('advMinAge').value = '';
+  document.getElementById('advMaxAge').value = '';
+
+  // Reset main search
+  document.getElementById('searchInput').value = '';
+  document.getElementById('genderFilter').value = '';
+  document.getElementById('wardFilter').value = '';
+  document.getElementById('boothFilter').value = '';
+
+  currentPage = 1;
+  isAdvancedSearch = false;
+  loadVoters();
 }

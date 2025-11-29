@@ -84,9 +84,14 @@
             <circle cx="11" cy="11" r="8"></circle>
             <path d="M21 21l-4.35-4.35"></path>
           </svg>
-          <input type="text" id="searchInput" placeholder="Search by name, voter ID, house name...">
+          <input type="text" id="searchInput" placeholder="Search by name, voter ID, house name, guardian...">
         </div>
         <div class="filters">
+          <select id="genderFilter">
+            <option value="">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
           <select id="wardFilter">
             <option value="">All Wards</option>
           </select>
@@ -94,6 +99,17 @@
             <option value="">All Booths</option>
           </select>
         </div>
+        <button class="btn btn-secondary" onclick="toggleAdvancedSearch()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+          </svg>
+          Advanced
+        </button>
         <button class="btn btn-primary" onclick="openModal()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -101,6 +117,52 @@
           </svg>
           Add Voter
         </button>
+      </div>
+
+      <!-- Advanced Search Panel -->
+      <div class="advanced-search" id="advancedSearch" style="display: none;">
+        <div class="advanced-search-grid">
+          <div class="form-group">
+            <label for="advName">Name</label>
+            <input type="text" id="advName" placeholder="Search by name">
+          </div>
+          <div class="form-group">
+            <label for="advGuardian">Guardian Name</label>
+            <input type="text" id="advGuardian" placeholder="Search by guardian">
+          </div>
+          <div class="form-group">
+            <label for="advHouseName">House Name</label>
+            <input type="text" id="advHouseName" placeholder="Search by house name">
+          </div>
+          <div class="form-group">
+            <label for="advHouseNumber">House Number</label>
+            <input type="text" id="advHouseNumber" placeholder="e.g., 011/28">
+          </div>
+          <div class="form-group">
+            <label for="advEpicNo">SEC ID / EPIC No</label>
+            <input type="text" id="advEpicNo" placeholder="e.g., SEC034447658">
+          </div>
+          <div class="form-group">
+            <label for="advGender">Gender</label>
+            <select id="advGender">
+              <option value="">All</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="advMinAge">Min Age</label>
+            <input type="number" id="advMinAge" placeholder="18" min="18">
+          </div>
+          <div class="form-group">
+            <label for="advMaxAge">Max Age</label>
+            <input type="number" id="advMaxAge" placeholder="100" max="150">
+          </div>
+        </div>
+        <div class="advanced-search-actions">
+          <button class="btn btn-secondary" onclick="clearAdvancedSearch()">Clear</button>
+          <button class="btn btn-primary" onclick="applyAdvancedSearch()">Search</button>
+        </div>
       </div>
 
       <!-- Voters Table -->
