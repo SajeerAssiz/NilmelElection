@@ -1,22 +1,43 @@
 {
-  "name": "nilamel-election-voters-list",
+  "name": "retail-cashing-up-program",
   "version": "1.0.0",
-  "description": "Web application for managing Nilamel Election Voters List",
-  "main": "server.js",
+  "description": "Retail Cashing Up Program for D365 Retail Commerce - Desktop Application with PDF Reports",
+  "main": "src/main/main.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
   },
-  "keywords": [
-    "election",
-    "voters",
-    "nilamel"
-  ],
-  "author": "",
-  "license": "ISC",
+  "build": {
+    "appId": "com.retail.cashingup",
+    "productName": "Retail Cashing Up",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "config/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    }
+  },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
-    "cors": "^2.8.5",
-    "express": "^4.18.2"
-  }
+    "mssql": "^10.0.1",
+    "dotenv": "^16.3.1",
+    "moment": "^2.29.4",
+    "pdfmake": "^0.2.9",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^27.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "author": "",
+  "license": "MIT"
 }

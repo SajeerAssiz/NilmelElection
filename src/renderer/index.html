@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <title>Retail Cashing Up Program - D365</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Cashing Up</h2>
+                <span class="version">D365 Retail</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="cashing-up">
+                    <span class="nav-icon">💰</span>
+                    <span>Cashing Up</span>
+                </li>
+                <li class="nav-item" data-page="transactions">
+                    <span class="nav-icon">📝</span>
+                    <span>Transactions</span>
+                </li>
+                <li class="nav-item" data-page="reports">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-dot disconnected"></span>
+                    <span>Disconnected</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <section class="page active" id="page-dashboard">
+                <header class="page-header">
+                    <h1>Dashboard</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="btnRefreshDashboard">Refresh</button>
+                    </div>
+                </header>
+                <div class="page-content">
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label>Store</label>
+                            <select id="dashboardStore" class="form-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Terminal</label>
+                            <select id="dashboardTerminal" class="form-select">
+                                <option value="">All Terminals</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Date</label>
+                            <input type="date" id="dashboardDate" class="form-input">
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🛒</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statTransactions">0</span>
+                                <span class="stat-label">Transactions</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💵</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statGrossSales">$0.00</span>
+                                <span class="stat-label">Gross Sales</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📉</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statDiscounts">$0.00</span>
+                                <span class="stat-label">Discounts</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">❌</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statVoids">0</span>
+                                <span class="stat-label">Voids</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Payment Methods</h3>
+                        <div id="paymentBreakdown" class="payment-grid"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cashing Up Page -->
+            <section class="page" id="page-cashing-up">
+                <header class="page-header">
+                    <h1>Cashing Up</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="btnClearCashUp">Clear</button>
+                        <button class="btn btn-primary" id="btnGenerateCashUpPDF">Generate PDF</button>
+                    </div>
+                </header>
+                <div class="page-content">
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label>Store</label>
+                            <select id="cashUpStore" class="form-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Terminal</label>
+                            <select id="cashUpTerminal" class="form-select">
+                                <option value="">All Terminals</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Date</label>
+                            <input type="date" id="cashUpDate" class="form-input">
+                        </div>
+                        <button class="btn btn-primary" id="btnLoadCashUp">Load Data</button>
+                    </div>
+
+                    <div class="cash-up-grid">
+                        <div class="card">
+                            <h3>System Totals (from D365)</h3>
+                            <table class="data-table">
+                                <tbody>
+                                    <tr>
+                                        <td>Gross Sales</td>
+                                        <td class="text-right" id="sysGrossSales">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Net Sales</td>
+                                        <td class="text-right" id="sysNetSales">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cash Payments</td>
+                                        <td class="text-right" id="sysCashPayments">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Card Payments</td>
+                                        <td class="text-right" id="sysCardPayments">$0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Other Payments</td>
+                                        <td class="text-right" id="sysOtherPayments">$0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card">
+                            <h3>Actual Cash Count</h3>
+                            <div class="denomination-grid">
+                                <div class="denom-row">
+                                    <label>$100 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="100" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>$50 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="50" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>$20 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="20" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>$10 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="10" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>$5 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="5" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>$1 x</label>
+                                    <input type="number" class="form-input denom-input" data-value="1" min="0" value="0">
+                                    <span class="denom-total">$0.00</span>
+                                </div>
+                                <div class="denom-row">
+                                    <label>Coins</label>
+                                    <input type="number" class="form-input" id="coinsTotal" step="0.01" min="0" value="0">
+                                    <span class="denom-total" id="coinsTotalDisplay">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="cash-total">
+                                <strong>Total Cash Counted:</strong>
+                                <span id="totalCashCounted">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="card variance-card">
+                            <h3>Variance</h3>
+                            <div class="variance-display">
+                                <div class="variance-row">
+                                    <span>Expected Cash:</span>
+                                    <span id="expectedCash">$0.00</span>
+                                </div>
+                                <div class="variance-row">
+                                    <span>Actual Cash:</span>
+                                    <span id="actualCash">$0.00</span>
+                                </div>
+                                <div class="variance-row variance-total">
+                                    <span>Variance:</span>
+                                    <span id="cashVariance" class="variance-amount">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Page -->
+            <section class="page" id="page-transactions">
+                <header class="page-header">
+                    <h1>Transactions</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="btnExportTransactions">Export PDF</button>
+                    </div>
+                </header>
+                <div class="page-content">
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label>Store</label>
+                            <select id="transStore" class="form-select"></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Terminal</label>
+                            <select id="transTerminal" class="form-select">
+                                <option value="">All Terminals</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>From</label>
+                            <input type="date" id="transStartDate" class="form-input">
+                        </div>
+                        <div class="filter-group">
+                            <label>To</label>
+                            <input type="date" id="transEndDate" class="form-input">
+                        </div>
+                        <button class="btn btn-primary" id="btnSearchTransactions">Search</button>
+                    </div>
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table" id="transactionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt #</th>
+                                        <th>Date</th>
+                                        <th>Terminal</th>
+                                        <th>Staff</th>
+                                        <th>Type</th>
+                                        <th>Gross</th>
+                                        <th>Net</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsBody">
+                                    <tr><td colspan="7" class="text-center">No data loaded</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Page -->
+            <section class="page" id="page-reports">
+                <header class="page-header">
+                    <h1>Reports</h1>
+                </header>
+                <div class="page-content">
+                    <div class="reports-grid">
+                        <div class="report-card" data-report="daily-cashing-up">
+                            <div class="report-icon">📊</div>
+                            <h3>Daily Cashing Up Report</h3>
+                            <p>Complete daily summary with payments, staff, and hourly breakdown</p>
+                            <button class="btn btn-primary">Generate</button>
+                        </div>
+                        <div class="report-card" data-report="payment-breakdown">
+                            <div class="report-icon">💳</div>
+                            <h3>Payment Methods Report</h3>
+                            <p>Breakdown of all payment methods used</p>
+                            <button class="btn btn-primary">Generate</button>
+                        </div>
+                        <div class="report-card" data-report="transactions">
+                            <div class="report-icon">📝</div>
+                            <h3>Transactions Report</h3>
+                            <p>Detailed list of all transactions</p>
+                            <button class="btn btn-primary">Generate</button>
+                        </div>
+                        <div class="report-card" data-report="variance">
+                            <div class="report-icon">📉</div>
+                            <h3>Variance Report</h3>
+                            <p>Cash over/short analysis</p>
+                            <button class="btn btn-primary">Generate</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Page -->
+            <section class="page" id="page-settings">
+                <header class="page-header">
+                    <h1>Settings</h1>
+                </header>
+                <div class="page-content">
+                    <div class="card">
+                        <h3>Database Connection</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label>Server</label>
+                                <input type="text" id="settingServer" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Database</label>
+                                <input type="text" id="settingDatabase" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Port</label>
+                                <input type="text" id="settingPort" class="form-input" readonly>
+                            </div>
+                            <p class="settings-note">Edit the .env file in the application folder to change connection settings.</p>
+                            <button class="btn btn-primary" id="btnTestConnection">Test Connection</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
